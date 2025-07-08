@@ -1,6 +1,7 @@
 
 vaultwarden:
   domain: "https://vaultwarden.mabecenter.org"
+  invitationOrgName: "MABECENTER"
 
   ingress:
     enabled: true
@@ -15,3 +16,14 @@ vaultwarden:
   adminToken:
     existingSecret: vaultwarden-secret
     existingSecretKey: ADMIN_TOKEN
+  
+  smtp:
+    host: "mail.mabecenter.org"
+    security: "force_tls"
+    port: 465
+    from: "no-reply@mabecenter.org"
+    fromName: "Vaultwarden Mabecenter"
+    username:
+      value: "no-reply@mabecenter.org"
+    password:
+      value: "FLORIDA123abc@"
