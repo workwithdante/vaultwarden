@@ -1,0 +1,19 @@
+
+domain: "https://vaultwarden.mabecenter.org"
+
+ingress:
+  enabled: true
+  hostname: vaultwarden.mabecenter.org
+  class: "traefik"
+  additionalAnnotations:
+    traefik.ingress.kubernetes.io/scheme: internet-facing
+    traefik.ingress.kubernetes.io/target-type: ip
+    traefik.ingress.kubernetes.io/tags: Environment=dev,Team=test
+    traefik.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:ACCOUNT:certificate/LONGID"
+
+adminToken:
+  value: "khit9gYQV6ax9LKTTm+s6QbZi5oiuR+3s1PEn9q3IRmCl9IQn7LmBpmFCOYTb7Mr"
+
+image:
+  pullSecrets:
+    - name: myRegKey

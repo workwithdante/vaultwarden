@@ -1,0 +1,10 @@
+apiVersion: v2
+name: vaultwarden-sierra-group
+description: Wrapper chart for vaultwarden
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: vaultwarden
+    version: "0.32.1"  # Especifica la versión del chart de gitea que deseas usar
+    repository: "https://guerzon.github.io/vaultwarden"  # URL del repositorio de gitea
