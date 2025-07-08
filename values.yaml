@@ -23,7 +23,8 @@ vaultwarden:
     port: 465
     from: "no-reply@mabecenter.org"
     fromName: "Vaultwarden Mabecenter"
+    existingSecret: "vaultwarden-smtp-secret"
     username:
-      value: "no-reply@mabecenter.org"
+      existingSecretKey: SMTP_USERNAME
     password:
-      value: "FLORIDA123abc@"
+      existingSecretKey: SMTP_PASSWORD
