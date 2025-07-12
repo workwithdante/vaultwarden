@@ -49,13 +49,20 @@ vaultwarden:
           echo "[📦] Extrayendo..."
           tar -xzf /restore/$BACKUP_FILE -C /restore
 
-          echo "[📁] Restaurando con rsync..."
-          rsync -a /restore/ /data/
+          echo "[📁] Restaurando base de datos..."
+          rsync -a /restore/db.sqlite3 /data/
+
+          echo "[📁] Restaurando attachments..."
+          rsync -a /restore/attachment/ /files/
 
           echo "[✅] Restauración finalizada"
+
       volumeMounts:
-        - name: data
-          mountPath: /data
+      - name: data
+        mountPath: /data
+      - name: attachments
+        mountPath: /files
+        
       env:
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
@@ -76,11 +83,12 @@ vaultwarden:
               name: aws-credentials
               key: secretKey
 
-  volumeMounts:
-    - name: data
-      mountPath: /data
-
-  volumes:
-    - name: data
-      persistentVolumeClaim:
-        claimName: vaultwarden-pvc # si usas un PVC específico
+  storage:
+    data:
+      name: vaultwarden-data
+      size: 15Gi
+      path: /data
+    attachments:
+      name: "vaultwarden-files"
+      size: "10Gi"
+      path: /files
