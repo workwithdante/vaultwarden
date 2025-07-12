@@ -57,8 +57,7 @@ vaultwarden:
       volumeMounts:
         - name: vaultwarden-data
           mountPath: /data
-        - name: rclone-config
-          mountPath: /config/rclone
+          
       env:
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
