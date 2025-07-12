@@ -76,7 +76,11 @@ vaultwarden:
               name: aws-credentials
               key: secretKey
 
-  storage:
-    existingVolumeClaim:
-      claimName: vaultwarden-pvc
-      dataPath: "/data"
+  volumeMounts:
+    - name: data
+      mountPath: /data
+
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: vaultwarden-pvc # si usas un PVC específico
