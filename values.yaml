@@ -50,10 +50,10 @@ vaultwarden:
           tar -xzf /restore/$BACKUP_FILE -C /restore
 
           echo "[📁] Restaurando base de datos..."
-          rsync -a /restore/db.sqlite3 /data/
+          rclone sync -a /restore/db.sqlite3 /data/
 
           echo "[📁] Restaurando attachments..."
-          rsync -a /restore/attachment/ /files/
+          rclone sync -a /restore/attachment/ /files/
 
           echo "[✅] Restauración finalizada"
 
