@@ -78,6 +78,11 @@ vaultwarden:
               name: aws-credentials
               key: secretKey
 
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: vaultwarden-pvc
+
   persistence:
     enabled: true
     existingClaim: vaultwarden-pvc
