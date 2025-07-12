@@ -35,6 +35,8 @@ vaultwarden:
       command: [sh, -c]
       args:
         - |
+          set -e
+          
           echo "[🔄] Descargando backup desde S3..."
 
           mkdir -p /restore
@@ -50,10 +52,10 @@ vaultwarden:
           tar -xzf /restore/$BACKUP_FILE -C /restore
 
           echo "[📁] Restaurando base de datos..."
-          rclone sync -a /restore/db.sqlite3 /data/
+          cp /restore/db.sqlite3 /data/
 
           echo "[📁] Restaurando attachments..."
-          rclone sync -a /restore/attachment/ /files/
+          cp -r /restore/attachment/ /files/
 
           echo "[✅] Restauración finalizada"
 
