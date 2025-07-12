@@ -40,11 +40,11 @@ vaultwarden:
           mkdir -p /restore
 
           # Buscar el backup más reciente
-          BACKUP_FILE=$(rclone lsf s3: | grep .tar.gz | sort | tail -n 1)
+          BACKUP_FILE=$(rclone lsf s3:$BUCKET/ | grep .tar.gz | sort | tail -n 1)
 
           echo "Último backup: $BACKUP_FILE"
 
-          rclone copy s3:$BACKUP_FILE /restore
+          rclone copy s3:$BUCKET/$BACKUP_FILE /restore
 
           echo "[📦] Extrayendo..."
           tar -xzf /restore/$BACKUP_FILE -C /restore
@@ -64,12 +64,14 @@ vaultwarden:
         mountPath: /files
 
       env:
+        - name: BUCKET
+          value: vault-backup-sierra-group
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
         - name: RCLONE_CONFIG_S3_PROVIDER
           value: AWS
         - name: RCLONE_CONFIG_S3_REGION
-          value: us-east-1
+          value: us-east-2
         - name: RCLONE_CONFIG_S3_ENV_AUTH
           value: "true"
         - name: AWS_ACCESS_KEY_ID
