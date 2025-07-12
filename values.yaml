@@ -28,3 +28,65 @@ vaultwarden:
       existingSecretKey: SMTP_USERNAME
     password:
       existingSecretKey: SMTP_PASSWORD
+
+  initContainers:
+    - name: restore-vaultwarden-backup
+      image: rclone/rclone:latest
+      command: [sh, -c]
+      args:
+        - |
+          echo "[🔄] Descargando backup desde S3..."
+
+          mkdir -p /restore
+
+          # Buscar el backup más reciente
+          BACKUP_FILE=$(rclone lsf s3: | grep .tar.gz | sort | tail -n 1)
+
+          echo "Último backup: $BACKUP_FILE"
+
+          rclone copy s3:$BACKUP_FILE /restore
+
+          echo "[📦] Extrayendo..."
+          tar -xzf /restore/$BACKUP_FILE -C /restore
+
+          echo "[📁] Restaurando con rsync..."
+          rsync -a /restore/ /data/
+
+          echo "[✅] Restauración finalizada"
+
+      volumeMounts:
+        - name: vaultwarden-data
+          mountPath: /data
+        - name: rclone-config
+          mountPath: /config/rclone
+      env:
+        - name: RCLONE_CONFIG_S3_TYPE
+          value: s3
+        - name: RCLONE_CONFIG_S3_PROVIDER
+          value: AWS
+        - name: RCLONE_CONFIG_S3_REGION
+          value: us-east-1
+        - name: RCLONE_CONFIG_S3_ENV_AUTH
+          value: "true"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: accessKey
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: secretKey
+
+  volumes:
+    - name: vaultwarden-data
+      persistentVolumeClaim:
+        claimName: vaultwarden-pvc
+    - name: rclone-config
+      configMap:
+        name: rclone-config
+
+  volumeMounts:
+    - name: vaultwarden-data
+      mountPath: /data
