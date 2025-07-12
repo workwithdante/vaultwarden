@@ -55,7 +55,7 @@ vaultwarden:
           echo "[✅] Restauración finalizada"
 
       volumeMounts:
-        - name: vaultwarden-data
+        - name: data
           mountPath: /data
           
       env:
@@ -78,7 +78,6 @@ vaultwarden:
               name: aws-credentials
               key: secretKey
 
-  volumes:
-  - name: vaultwarden-data
-    persistentVolumeClaim:
-      claimName: vaultwarden-pvc
+  persistence:
+    enabled: true
+    existingClaim: vaultwarden-pvc
