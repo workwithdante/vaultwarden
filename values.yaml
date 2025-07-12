@@ -80,13 +80,6 @@ vaultwarden:
               key: secretKey
 
   volumes:
-    - name: vaultwarden-data
-      persistentVolumeClaim:
-        claimName: vaultwarden-pvc
-    - name: rclone-config
-      configMap:
-        name: rclone-config
-
-  volumeMounts:
-    - name: vaultwarden-data
-      mountPath: /data
+  - name: vaultwarden-data
+    persistentVolumeClaim:
+      claimName: vaultwarden-pvc
