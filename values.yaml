@@ -62,7 +62,7 @@ vaultwarden:
         mountPath: /data
       - name: attachments
         mountPath: /files
-        
+
       env:
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
@@ -88,7 +88,9 @@ vaultwarden:
       name: vaultwarden-data
       size: 15Gi
       path: /data
+      accessMode: ReadWriteOnce
     attachments:
       name: "vaultwarden-files"
       size: "10Gi"
       path: /files
+      accessMode: ReadWriteOnce
