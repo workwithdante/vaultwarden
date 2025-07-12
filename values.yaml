@@ -58,9 +58,9 @@ vaultwarden:
           echo "[✅] Restauración finalizada"
 
       volumeMounts:
-      - name: data
+      - name: vaultwarden-data
         mountPath: /data
-      - name: attachments
+      - name: vaultwarden-files
         mountPath: /files
 
       env:
@@ -90,7 +90,7 @@ vaultwarden:
       path: /data
       accessMode: ReadWriteOnce
     attachments:
-      name: "vaultwarden-files"
+      name: vaultwarden-files
       size: "10Gi"
       path: /files
       accessMode: ReadWriteOnce
