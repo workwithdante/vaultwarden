@@ -2,6 +2,9 @@ vaultwarden:
   domain: "https://vault.mabecenter.org"
   invitationOrgName: "MABECENTER"
 
+  commonAnnotations:
+    - backup.velero.io/backup-volumes: "vaultwarden-data,vaultwarden-files"
+
   ingress:
     enabled: true
     hostname: vault.mabecenter.org
