@@ -36,7 +36,7 @@ vaultwarden:
       args:
         - |
           set -e
-          
+
           echo "[🔄] Descargando backup desde S3..."
 
           mkdir -p /restore
@@ -55,7 +55,7 @@ vaultwarden:
           cp /restore/db.sqlite3 /data/
 
           echo "[📁] Restaurando attachments..."
-          cp -r /restore/attachment/ /files/
+          cp -r /restore/attachments/ /files/
 
           echo "[✅] Restauración finalizada"
 
