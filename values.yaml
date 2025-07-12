@@ -1,10 +1,10 @@
 vaultwarden:
-  domain: "https://vaultwarden.mabecenter.org"
+  domain: "https://vault.mabecenter.org"
   invitationOrgName: "MABECENTER"
 
   ingress:
     enabled: true
-    hostname: vaultwarden.mabecenter.org
+    hostname: vault.mabecenter.org
     class: "traefik"
     tls: true
     additionalAnnotations:
