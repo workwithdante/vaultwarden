@@ -1,4 +1,3 @@
-
 vaultwarden:
   domain: "https://vaultwarden.mabecenter.org"
   invitationOrgName: "MABECENTER"
@@ -7,6 +6,7 @@ vaultwarden:
     enabled: true
     hostname: vaultwarden.mabecenter.org
     class: "traefik"
+    tls: true
     additionalAnnotations:
       traefik.ingress.kubernetes.io/scheme: internet-facing
       traefik.ingress.kubernetes.io/target-type: ip
@@ -16,7 +16,7 @@ vaultwarden:
   adminToken:
     existingSecret: vaultwarden-secret
     existingSecretKey: ADMIN_TOKEN
-  
+
   smtp:
     host: "mail.mabecenter.org"
     security: "force_tls"
@@ -53,11 +53,9 @@ vaultwarden:
           rsync -a /restore/ /data/
 
           echo "[✅] Restauración finalizada"
-
       volumeMounts:
         - name: data
           mountPath: /data
-          
       env:
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
@@ -78,11 +76,7 @@ vaultwarden:
               name: aws-credentials
               key: secretKey
 
-  volumes:
-    - name: data
-      persistentVolumeClaim:
-        claimName: vaultwarden-pvc
-
-  persistence:
-    enabled: true
-    existingClaim: vaultwarden-pvc
+  storage:
+    existingVolumeClaim:
+      claimName: vaultwarden-pvc
+      dataPath: "/data"
