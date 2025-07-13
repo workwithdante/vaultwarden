@@ -35,64 +35,6 @@ vaultwarden:
     password:
       existingSecretKey: SMTP_PASSWORD
 
-  initContainers:
-    - name: restore-vaultwarden-backup
-      image: rclone/rclone:latest
-      command: [sh, -c]
-      args:
-        - |
-          set -e
-
-          echo "[🔄] Descargando backup desde S3..."
-
-          mkdir -p /restore
-
-          # Buscar el backup más reciente
-          BACKUP_FILE=$(rclone lsf s3:$BUCKET/ | grep .tar.gz | sort | tail -n 1)
-
-          echo "Último backup: $BACKUP_FILE"
-
-          rclone copy s3:$BUCKET/$BACKUP_FILE /restore
-
-          echo "[📦] Extrayendo..."
-          tar -xzf /restore/$BACKUP_FILE -C /restore
-
-          echo "[📁] Restaurando base de datos..."
-          cp /restore/db.sqlite3 /data/
-
-          echo "[📁] Restaurando attachments..."
-          cp -r /restore/attachments/ /files/
-
-          echo "[✅] Restauración finalizada"
-
-      volumeMounts:
-      - name: vaultwarden-data
-        mountPath: /data
-      - name: vaultwarden-files
-        mountPath: /files
-
-      env:
-        - name: BUCKET
-          value: vault-backup-sierra-group
-        - name: RCLONE_CONFIG_S3_TYPE
-          value: s3
-        - name: RCLONE_CONFIG_S3_PROVIDER
-          value: AWS
-        - name: RCLONE_CONFIG_S3_REGION
-          value: us-east-2
-        - name: RCLONE_CONFIG_S3_ENV_AUTH
-          value: "true"
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: aws-credentials
-              key: accessKey
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: aws-credentials
-              key: secretKey
-
   storage:
     data:
       name: vaultwarden-data
