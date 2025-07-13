@@ -103,6 +103,6 @@ vaultwarden:
     attachments:
       name: vaultwarden-files
       class: nfs
-      size: "10Gi"
+      size: 10Gi
       path: /files
       accessMode: ReadWriteOnce
