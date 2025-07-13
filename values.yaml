@@ -3,10 +3,10 @@ vaultwarden:
   invitationOrgName: "MABECENTER"
 
   commonAnnotations:
-    backup.velero.io/backup-volumes: vaultwarden-data, vaultwarden-files
+    backup.velero.io/backup-volumes: "vaultwarden-data, vaultwarden-files"
 
   podAnnotations:
-    backup.velero.io/backup-volumes: vaultwarden-data, vaultwarden-files
+    backup.velero.io/backup-volumes: "vaultwarden-data, vaultwarden-files"
 
   ingress:
     enabled: true
@@ -34,7 +34,7 @@ vaultwarden:
       existingSecretKey: SMTP_USERNAME
     password:
       existingSecretKey: SMTP_PASSWORD
-      
+
   initContainers:
     - name: restore-vaultwarden-backup
       image: rclone/rclone:latest
