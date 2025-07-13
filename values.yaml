@@ -96,11 +96,13 @@ vaultwarden:
   storage:
     data:
       name: vaultwarden-data
+      class: "nfs"
       size: 15Gi
       path: /data
       accessMode: ReadWriteOnce
     attachments:
       name: vaultwarden-files
+      class: "nfs"
       size: "10Gi"
       path: /files
       accessMode: ReadWriteOnce
