@@ -53,7 +53,7 @@ vaultwarden:
         - name: BUCKET
           value: vault-backups
         - name: PATH_PREFIX
-          value: kopia/vaultwarden
+          value: kopia/vaultwarden/
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
         - name: RCLONE_CONFIG_S3_PROVIDER
