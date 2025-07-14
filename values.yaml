@@ -31,16 +31,17 @@ vaultwarden:
 
           kopia repository connect s3 --bucket=$BUCKET --access-key=$AWS_ACCESS_KEY_ID --secret-access-key=$AWS_SECRET_ACCESS_KEY --prefix=$PATH_PREFIX --endpoint=$RCLONE_CONFIG_S3_ENDPOINT
           
-          BACKUP_FILE=$(kopia snapshot list --all -l)
+          SNAPSHOT_LIST=$(kopia snapshot list --all -l --json)
 
+          DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | jq -r '.[] | select(.tags.volume == "vaultwarden-data") | .rootEntry.obj')
 
-          echo "Último backup: $BACKUP_FILE"
+          FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | jq -r '.[] | select(.tags.volume == "vaultwarden-files") | .rootEntry.obj')
 
           echo "[📁] Restaurando base de datos..."
-          kopia snapshot restore k60470edce3273ca41fab52e9c5cf35b0 /data
+          kopia snapshot restore $DATA_SNAPSHOT_OBJ /data
 
           echo "[📁] Restaurando attachments..."
-          kopia snapshot restore k6e4302dae66e060da2c83aa91e66c95c /files 
+          kopia snapshot restore $FILES_SNAPSHOT_OBJ /files 
 
       volumeMounts:
       - name: vaultwarden-data
