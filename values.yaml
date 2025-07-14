@@ -34,7 +34,7 @@ vaultwarden:
           # Buscar el backup más reciente
           BACKUP_FILE=$(rclone lsf s3:$BUCKET/ | grep .tar.gz | sort | tail -n 1)
 
-          kopia repository connect s3://$S3_BUCKET/$REPO_PATH \
+          kopia repository connect rclone s3://$S3_BUCKET/$REPO_PATH \
           --access-key-id=$AWS_ACCESS_KEY_ID \
           --secret-access-key=$AWS_SECRET_ACCESS_KEY \
           --password-file /secrets/kopia-password
