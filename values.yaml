@@ -33,7 +33,7 @@ vaultwarden:
 
 
           kopia repository connect rclone \
-          --remote-path $BUCKET/vaultwarden \
+          --remote-path minio.mabecenter.org:$BUCKET/vaultwarden \
           --rclone-exe /usr/bin/rclone \
           -p static-passw0rd
 
