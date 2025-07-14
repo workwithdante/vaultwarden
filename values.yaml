@@ -31,13 +31,11 @@ vaultwarden:
 
           mkdir -p /restore
 
-          # Buscar el backup más reciente
-          BACKUP_FILE=$(rclone lsf s3:$BUCKET/ | grep .tar.gz | sort | tail -n 1)
 
           kopia repository connect rclone \
-          --remote-path s3:vault-backups/vaultwarden \
+          --config-file $BUCKET/vaultwarden \
           --rclone-exe /usr/bin/rclone \
-          -p static-password
+          -p static-passw0rd
 
           echo "[🔄] Sincronizando repositorio de Kopia a rclone..."
 
