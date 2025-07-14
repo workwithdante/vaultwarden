@@ -19,6 +19,58 @@ vaultwarden:
       traefik.ingress.kubernetes.io/tags: Environment=dev,Team=test
       traefik.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:ACCOUNT:certificate/LONGID"
 
+  initContainers:
+    - name: kopia-sync-to-rclone
+      image: docker.io/kopia/kopia:latest
+      command: [sh, -c]
+      args:
+        - |
+          set -e
+          echo "[🔄] Conectando a repositorio Kopia en S3..."
+
+          # Conexión al repositorio de Kopia en S3
+          kopia repository connect s3://$S3_BUCKET/$REPO_PATH \
+            --access-key-id=$AWS_ACCESS_KEY_ID \
+            --secret-access-key=$AWS_SECRET_ACCESS_KEY \
+            --password-file /secrets/kopia-password
+
+          echo "[🔄] Sincronizando repositorio de Kopia a rclone..."
+
+          # Realizar el sync desde el repositorio de Kopia hacia rclone
+          kopia repository sync-to rclone \
+            --remote-path=rclone:/mnt/rclone-backup \
+            --rclone-exe=/usr/local/bin/rclone
+
+          echo "[✅] Sincronización finalizada"
+
+      volumeMounts:
+      - name: vaultwarden-data
+        mountPath: /data
+      - name: vaultwarden-files
+        mountPath: /files
+
+      env:
+        - name: BUCKET
+          value: vault-backup-sierra-group
+        - name: RCLONE_CONFIG_S3_TYPE
+          value: s3
+        - name: RCLONE_CONFIG_S3_PROVIDER
+          value: AWS
+        - name: RCLONE_CONFIG_S3_REGION
+          value: us-east-2
+        - name: RCLONE_CONFIG_S3_ENV_AUTH
+          value: "true"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: accessKey
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: secretKey
+
   adminToken:
     existingSecret: vaultwarden-secret
     existingSecretKey: ADMIN_TOKEN
