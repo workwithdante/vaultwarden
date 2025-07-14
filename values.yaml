@@ -37,7 +37,7 @@ vaultwarden:
           kopia repository connect rclone \
           --remote-path s3:vault-backups/vaultwarden \
           --rclone-exe /usr/bin/rclone \
-          --p static-password
+          -p static-password
 
           echo "[🔄] Sincronizando repositorio de Kopia a rclone..."
 
