@@ -29,7 +29,7 @@ vaultwarden:
 
           echo "[🔄] Sincronizando repositorio de Kopia a rclone..."
 
-          kopia repository connect s3 --bucket=$BUCKET --access-key=$AWS_ACCESS_KEY_ID --secret-access-key=$AWS_SECRET_ACCESS_KEY --prefix=$PATH_PREFIX --endpoint=$RCLONE_CONFIG_S3_ENDPOINT -p static-passw0rd 
+          kopia repository connect s3 --bucket=$BUCKET --access-key=$AWS_ACCESS_KEY_ID --secret-access-key=$AWS_SECRET_ACCESS_KEY --prefix=$PATH_PREFIX --endpoint=$RCLONE_CONFIG_S3_ENDPOINT --password=$KOPIA_PASSWORD 
           
           SNAPSHOT_LIST=$(kopia snapshot list --all -l --json)
 
@@ -50,6 +50,8 @@ vaultwarden:
         mountPath: /files
 
       env:
+        - name: $KOPIA_PASSWORD
+          value: static-passw0rd
         - name: BUCKET
           value: vault-backups
         - name: PATH_PREFIX
