@@ -27,6 +27,7 @@ vaultwarden:
         - |
           set -e
           echo "[🔄] Conectando a repositorio Kopia en S3..."
+          rclone --version
 
           # Conexión al repositorio de Kopia en S3
           kopia repository connect s3://$S3_BUCKET/$REPO_PATH \
