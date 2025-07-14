@@ -33,9 +33,9 @@ vaultwarden:
           
           SNAPSHOT_LIST=$(kopia snapshot list --all -l --json)
 
-          DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | jq -r '.[] | select(.tags.volume == "vaultwarden-data") | .rootEntry.obj')
+          DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-data"/ {print $2}' | awk -F'"' '{print $1}')
 
-          FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | jq -r '.[] | select(.tags.volume == "vaultwarden-files") | .rootEntry.obj')
+          FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-files"/ {print $2}' | awk -F'"' '{print $1}')
 
           echo "[📁] Restaurando base de datos..."
           kopia snapshot restore $DATA_SNAPSHOT_OBJ /data
