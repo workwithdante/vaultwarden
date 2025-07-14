@@ -33,7 +33,7 @@ vaultwarden:
 
 
           kopia repository connect rclone \
-          --config-file $BUCKET/vaultwarden \
+          --remote-path $BUCKET/vaultwarden \
           --rclone-exe /usr/bin/rclone \
           -p static-passw0rd
 
