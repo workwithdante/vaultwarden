@@ -72,6 +72,11 @@ vaultwarden:
           value: us-east-2
         - name: RCLONE_CONFIG_S3_ENV_AUTH
           value: "true"
+        - name: RCLONE_CONFIG_S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: endpoint
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
