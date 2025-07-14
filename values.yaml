@@ -26,23 +26,27 @@ vaultwarden:
       args:
         - |
           set -e
-          echo "[🔄] Conectando a repositorio Kopia en S3..."
-          rclone --version
 
-          # Conexión al repositorio de Kopia en S3
-          kopia repository connect s3://$S3_BUCKET/$REPO_PATH \
-            --access-key-id=$AWS_ACCESS_KEY_ID \
-            --secret-access-key=$AWS_SECRET_ACCESS_KEY \
-            --password-file /secrets/kopia-password
+          echo "[🔄] Descargando backup desde S3..."
 
-          echo "[🔄] Sincronizando repositorio de Kopia a rclone..."
+          mkdir -p /restore
 
-          # Realizar el sync desde el repositorio de Kopia hacia rclone
-          kopia repository sync-to rclone \
-            --remote-path=rclone:/mnt/rclone-backup \
-            --rclone-exe=/usr/local/bin/rclone
+          # Buscar el backup más reciente
+          BACKUP_FILE=$(rclone lsf s3:$BUCKET/ | grep .tar.gz | sort | tail -n 1)
 
-          echo "[✅] Sincronización finalizada"
+          echo "Último backup: $BACKUP_FILE"
+
+          rclone copy s3:$BUCKET/$BACKUP_FILE /restore
+
+          echo "[📦] Extrayendo..."
+          tar -xzf /restore/$BACKUP_FILE -C /restore
+
+          echo "[📁] Restaurando base de datos..."
+          cp /restore/db.sqlite3 /data/
+
+          echo "[📁] Restaurando attachments..."
+          cp -r /restore/attachments/ /files/
+
 
       volumeMounts:
       - name: vaultwarden-data
