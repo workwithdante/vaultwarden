@@ -31,7 +31,7 @@ vaultwarden:
 
           kopia repository connect s3 --bucket=$BUCKET --access-key=$AWS_ACCESS_KEY_ID --secret-access-key=$AWS_SECRET_ACCESS_KEY --prefix=$PATH_PREFIX --endpoint=$RCLONE_CONFIG_S3_ENDPOINT
           
-          BACKUP_FILE=$(kopia snapshot list --all -l | grep .tar.gz | sort | tail -n 1)
+          BACKUP_FILE=$(kopia snapshot list --all -l)
 
 
           echo "Último backup: $BACKUP_FILE"
