@@ -27,31 +27,20 @@ vaultwarden:
         - |
           set -e
 
-          echo "[🔄] Descargando backup desde S3..."
-
-          mkdir -p /restore
-
-
-          kopia repository connect rclone \
-          --remote-path s3:vault-backups/kopia/vaultwarden \
-          --rclone-exe /usr/bin/rclone \
-          -p static-passw0rd
-
           echo "[🔄] Sincronizando repositorio de Kopia a rclone..."
+
+          kopia repository connect s3 --bucket=$BUCKET --access-key=$AWS_ACCESS_KEY_ID --secret-access-key=$AWS_SECRET_ACCESS_KEY --prefix=$PATH_PREFIX --endpoint=$RCLONE_CONFIG_S3_ENDPOINT
+          
+          BACKUP_FILE=$(kopia snapshot list --all -l | grep .tar.gz | sort | tail -n 1)
+
 
           echo "Último backup: $BACKUP_FILE"
 
-          rclone copy s3:$BUCKET/$BACKUP_FILE /restore
-
-          echo "[📦] Extrayendo..."
-          tar -xzf /restore/$BACKUP_FILE -C /restore
-
           echo "[📁] Restaurando base de datos..."
-          cp /restore/db.sqlite3 /data/
+          kopia snapshot restore k60470edce3273ca41fab52e9c5cf35b0 /data
 
           echo "[📁] Restaurando attachments..."
-          cp -r /restore/attachments/ /files/
-
+          kopia snapshot restore k6e4302dae66e060da2c83aa91e66c95c /files 
 
       volumeMounts:
       - name: vaultwarden-data
@@ -62,6 +51,8 @@ vaultwarden:
       env:
         - name: BUCKET
           value: vault-backups
+        - name: PATH_PREFIX
+          value: kopia/vaultwarden
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
         - name: RCLONE_CONFIG_S3_PROVIDER
