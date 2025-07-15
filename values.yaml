@@ -41,6 +41,9 @@ vaultwarden:
 
           FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-files"/ {print $2}' | awk -F'"' '{print $1}')
 
+          echo $DATA_SNAPSHOT_OBJ
+          echo $FILES_SNAPSHOT_OBJ
+
           echo "[📁] Restaurando base de datos..."
           kopia snapshot restore $DATA_SNAPSHOT_OBJ /data
 
