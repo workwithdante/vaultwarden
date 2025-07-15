@@ -37,9 +37,9 @@ vaultwarden:
           
           SNAPSHOT_LIST=$(kopia snapshot list --all -l --json)
 
-          DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-data"/ {print $2}' | awk -F'"' '{print $1}')
+          DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-data"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
 
-          FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-files"/ {print $2}' | awk -F'"' '{print $1}')
+          FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-files"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
 
           echo $DATA_SNAPSHOT_OBJ
           echo $FILES_SNAPSHOT_OBJ
