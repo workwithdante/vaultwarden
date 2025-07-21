@@ -17,45 +17,34 @@ vaultwarden:
       traefik.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-central-1:ACCOUNT:certificate/LONGID"
 
   initContainers:
-    - name: kopia-sync-to-rclone
-      image: docker.io/kopia/kopia:latest
+    - name: restore-vaultwarden-backup
+      image: rclone/rclone:latest
       command: [sh, -c]
       args:
         - |
-          echo "[🔄] Sincronizando repositorio de Kopia a rclone..."
-          echo $BUCKET
-          echo $AWS_ACCESS_KEY_ID
-          echo $AWS_SECRET_ACCESS_KEY
-          echo $PATH_PREFIX
-          echo $RCLONE_CONFIG_S3_ENDPOINT
-          echo $KOPIA_PASSWORD
+          set -e
 
-          kopia repository connect s3 --bucket=$BUCKET --access-key=$AWS_ACCESS_KEY_ID --secret-access-key=$AWS_SECRET_ACCESS_KEY --prefix=$PATH_PREFIX --endpoint=$RCLONE_CONFIG_S3_ENDPOINT --password=$KOPIA_PASSWORD --no-persist-credentials
-          
-          SNAPSHOT_LIST=$(
-            kopia snapshot list --all -l --json \
-              --password="$KOPIA_PASSWORD" 2>/dev/null \
-            || echo '[]'
-          )
+          echo "[🔄] Descargando backup desde S3..."
 
-          COUNT=$(printf '%s\n' "$SNAPSHOT_LIST" \
-            | awk '/"obj":/ { c++ } END { print c+0 }'
-          )
+          mkdir -p /restore
 
-          if [ "$COUNT" -gt 0 ]; then
-            DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-data"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
+          # Buscar el backup más reciente
+          BACKUP_FILE=$(rclone lsf s3:$BUCKET/ | grep .tar.gz | sort | tail -n 1)
 
-            FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-files"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
+          echo "Último backup: $BACKUP_FILE"
 
-            echo $DATA_SNAPSHOT_OBJ
-            echo $FILES_SNAPSHOT_OBJ
+          rclone copy s3:$BUCKET/$BACKUP_FILE /restore
 
-            echo "[📁] Restaurando base de datos..."
-            kopia snapshot restore $DATA_SNAPSHOT_OBJ /data
+          echo "[📦] Extrayendo..."
+          tar -xzf /restore/$BACKUP_FILE -C /restore
 
-            echo "[📁] Restaurando attachments..."
-            kopia snapshot restore $FILES_SNAPSHOT_OBJ /files
-          fi
+          echo "[📁] Restaurando base de datos..."
+          cp /restore/db.sqlite3 /data/
+
+          echo "[📁] Restaurando attachments..."
+          cp -r /restore/attachments/ /files/
+
+          echo "[✅] Restauración finalizada"
 
       volumeMounts:
       - name: vaultwarden-data
@@ -64,12 +53,8 @@ vaultwarden:
         mountPath: /files
 
       env:
-        - name: KOPIA_PASSWORD
-          value: static-passw0rd
         - name: BUCKET
-          value: vault-backups
-        - name: PATH_PREFIX
-          value: kopia/vaultwarden/
+          value: vault-backup-sierra-group
         - name: RCLONE_CONFIG_S3_TYPE
           value: s3
         - name: RCLONE_CONFIG_S3_PROVIDER
@@ -78,11 +63,6 @@ vaultwarden:
           value: us-east-2
         - name: RCLONE_CONFIG_S3_ENV_AUTH
           value: "true"
-        - name: RCLONE_CONFIG_S3_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: aws-credentials
-              key: endpoint
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
@@ -93,7 +73,6 @@ vaultwarden:
             secretKeyRef:
               name: aws-credentials
               key: secretKey
-
   adminToken:
     existingSecret: vaultwarden-secret
     existingSecretKey: ADMIN_TOKEN
