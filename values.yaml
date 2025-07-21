@@ -32,20 +32,29 @@ vaultwarden:
 
           kopia repository connect s3 --bucket=$BUCKET --access-key=$AWS_ACCESS_KEY_ID --secret-access-key=$AWS_SECRET_ACCESS_KEY --prefix=$PATH_PREFIX --endpoint=$RCLONE_CONFIG_S3_ENDPOINT --password=$KOPIA_PASSWORD --no-persist-credentials
           
-          SNAPSHOT_LIST=$(kopia snapshot list --all -l --json)
+          SNAPSHOT_LIST=$(
+            kopia snapshot list --all -l --json \
+              --password="$KOPIA_PASSWORD" 2>/dev/null \
+            || echo '[]'
+          )
 
-          DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-data"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
+          # Cuenta cuántos hay en el array
+          COUNT=$(echo "$SNAPSHOT_LIST" | jq 'length')
 
-          FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-files"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
+          if [ "$COUNT" -gt 0 ] 
+            DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-data"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
 
-          echo $DATA_SNAPSHOT_OBJ
-          echo $FILES_SNAPSHOT_OBJ
+            FILES_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-files"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
 
-          echo "[📁] Restaurando base de datos..."
-          kopia snapshot restore $DATA_SNAPSHOT_OBJ /data
+            echo $DATA_SNAPSHOT_OBJ
+            echo $FILES_SNAPSHOT_OBJ
 
-          echo "[📁] Restaurando attachments..."
-          kopia snapshot restore $FILES_SNAPSHOT_OBJ /files 
+            echo "[📁] Restaurando base de datos..."
+            kopia snapshot restore $DATA_SNAPSHOT_OBJ /data
+
+            echo "[📁] Restaurando attachments..."
+            kopia snapshot restore $FILES_SNAPSHOT_OBJ /files
+          fi
 
       volumeMounts:
       - name: vaultwarden-data
