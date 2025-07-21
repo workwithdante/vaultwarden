@@ -38,8 +38,9 @@ vaultwarden:
             || echo '[]'
           )
 
-          # Cuenta cuántos hay en el array
-          COUNT=$(echo "$SNAPSHOT_LIST" | jq 'length')
+          COUNT=$(printf '%s\n' "$SNAPSHOT_LIST" \
+            | awk '/"obj":/ { c++ } END { print c+0 }'
+          )
 
           if [ "$COUNT" -gt 0 ] 
             DATA_SNAPSHOT_OBJ=$(echo "$SNAPSHOT_LIST" | awk -F'"obj":"' '/"volume":"vaultwarden-data"/ {obj=$2} END {split(obj, a, "\""); print a[1]}')
