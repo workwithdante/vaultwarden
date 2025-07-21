@@ -3,7 +3,7 @@ vaultwarden:
   invitationOrgName: "MABECENTER"
 
   podAnnotations:
-    backup.velero.io/backup-volumes: vaultwarden-data, vaultwarden-files
+    backup.velero.io/backup-volumes: "vaultwarden-data"
 
   ingress:
     enabled: true
